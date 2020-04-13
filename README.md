@@ -56,6 +56,20 @@ The above `docker-compose.yml` example can be then ran using `docker-compose up 
 
 For additional information on running Docker images and the arguments available, please refer to the official Docker documentation.
 
+## Accessing the XLink Kai Engine Docker from a Web Browser
+
+By default, the XLink Kai Engine hosts a web interface on port 34522.  Simply put in the server IP/hostname with port number 34522 to access the page.  For example, if your server IP is `192.168.0.50`, you would enter `http://192.168.0.50:34522/` into your web browser on the same network to access the XLink Kai Engine web interface.
+
+If you are using a macvlan network and didn't specify an IP address, you may use the following Docker command to read the IP:  (Substituting "xlink-kai" at the end if you run the image with a different container name.)
+
+```bash
+docker inspect --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' xlink-kai
+```
+
+However, it is recommended that if you are using a macvlan network, to specify the IP address the container will be using.  Please review the official Docker documentation on details of settings up a macvlan and specifying an IP address for more details.
+
+Note that you may change this port to any other unused port of your choice inside the web interface.
+
 ## Details on the Docker build
 
 This is a multi-stage Docker image created using `debian:stable-slim` as the base image, with i386-specific libraries installed for use with the kaiengine binary.
