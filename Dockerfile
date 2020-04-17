@@ -50,10 +50,6 @@ COPY	--from=builder	\
 		/usr/lib/i386-linux-gnu/libstdc++.so.6	\
 		/lib/i386-linux-gnu/
 
-# Create required root user, using /etc/passwd from builder target.
-COPY	--from=builder /etc/passwd /etc/passwd
-USER	root
-
 # Copy services file into image.
 COPY	--from=builder /etc/services /etc/services
 
