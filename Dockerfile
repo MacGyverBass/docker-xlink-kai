@@ -36,8 +36,6 @@ FROM	scratch
 # /lib/i386-linux-gnu/libresolv.so.2
 COPY	--from=builder	\
 		/lib/ld-linux.so.2	\
-		/lib/
-COPY	--from=builder	\
 		/lib/i386-linux-gnu/libc.so.6	\
 		/lib/i386-linux-gnu/libdl.so.2	\
 		/lib/i386-linux-gnu/libgcc_s.so.1	\
@@ -48,7 +46,7 @@ COPY	--from=builder	\
 		/lib/i386-linux-gnu/libresolv.so.2	\
 		/lib/i386-linux-gnu/librt.so.1	\
 		/usr/lib/i386-linux-gnu/libstdc++.so.6	\
-		/lib/i386-linux-gnu/
+		/lib/
 
 # Copy services file into image.
 COPY	--from=builder /etc/services /etc/services
