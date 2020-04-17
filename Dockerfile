@@ -47,10 +47,8 @@ COPY	--from=builder	\
 		/lib/i386-linux-gnu/libpthread.so.0	\
 		/lib/i386-linux-gnu/libresolv.so.2	\
 		/lib/i386-linux-gnu/librt.so.1	\
-		/lib/i386-linux-gnu/
-COPY	--from=builder	\
 		/usr/lib/i386-linux-gnu/libstdc++.so.6	\
-		/usr/lib/i386-linux-gnu/
+		/lib/i386-linux-gnu/
 
 # Create required root user, using /etc/passwd from builder target.
 COPY	--from=builder /etc/passwd /etc/passwd
