@@ -49,10 +49,10 @@ COPY	--from=builder	\
 		/lib/
 
 # Copy services file into image.
-COPY	--from=builder /etc/services /etc/services
+COPY	--from=builder /etc/services /etc/
 
 # Copy the files downloaded/extracted from the builder target.
-COPY	--from=builder /kaiEngine/ /kaiEngine/
+COPY	--from=builder /kaiEngine/ /bin/
 
 # Set the working directory.
 # This is now set to the original configuration directory, as the new version (7.4.35) of kaiEngine now stores it's config files to the working directory.
@@ -65,7 +65,7 @@ EXPOSE	34522/tcp
 VOLUME	["/root/.xlink/"]
 
 # Set the executable as the entrypoint.
-ENTRYPOINT	["/kaiEngine/kaiengine"]
+ENTRYPOINT	["/bin/kaiengine"]
 
 # Set the Stop Signal to SIGINT to safely stop the process.
 STOPSIGNAL	SIGINT
