@@ -72,8 +72,7 @@ Note that you may change this port to any other unused port of your choice insid
 
 ## Details on the Docker build
 
-This is a multi-stage Docker image created using `debian:stable-slim` as the base image, with i386-specific libraries installed for use with the kaiengine binary.
-The build process downloads the Linux XLink Kai Engine files, extracting to a predefined folder.
-To make the final build as small as possible, it then builds the image from scratch, adding only the libraries and extracted XLink Kai Engine binary files to the final build.
-The end result is a Docker image with only the files necessary to run kaiengine.  There is no shell or other executables within the final image, thus not only is it very small (about 7MB at the time of writing) but also more secure as the only executable binary inside the image is kaiengine itself.
+This is a multi-stage Docker image, using `busybox:latest` first to perform the action of finding the latest Debian x86-64 kaiEngine package from the downloads page and downloading/extracting that package.
+To make the final build as small as possible, it then builds the image from scratch, adding only the libraries (pulled directly from the `debian:stable-slim` image), a minimal `/etc/services` file, and extracted XLink Kai Engine binary files to the final build.
+The end result is a Docker image with only the files necessary to run kaiengine.  There is no shell or other executables within the final image, thus not only is it very small (about 8MB at the time of writing) but also more secure as the only executable binary inside the image is kaiengine itself.
 
