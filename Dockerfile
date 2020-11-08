@@ -1,71 +1,60 @@
-# Base image used for downloading/extracting the main binary and library dependencies.
-FROM	debian:stable-slim AS builder
-ARG	DEBIAN_FRONTEND="noninteractive"
+# Use busybox for downloading/extracting the XLink Kai Engine
+FROM	busybox:latest AS download
 
-# Install required packages and i386 libraries.
-# The package netbase is installed for grabbing the /etc/services file.
-RUN	dpkg --add-architecture i386	\
-	&& apt-get update	\
-	&& apt-get install -y --no-install-recommends	\
-		libc6:i386	\
-		libstdc++6:i386	\
-		libgcc-8-dev:i386	\
-		ca-certificates	\
-		curl	\
-		netbase	\
-	&& rm -rf /var/lib/apt/lists/*
-
-# Primary download URL for the XLink Kai Engine.
-# Version 7.4.35 was released Mar 24, 2020 and is current as of Apr 3, 2020.
-ARG	Download_URL="https://cdn.teamxlink.co.uk/binary/kaiEngine-7.4.35-534304365.headless.el6.i686.tar.gz"
-
-# Download, extract and mark as executable.
-RUN	curl "${Download_URL}" | tar zxv	\
-	&& mv -iv kaiEngine-* /kaiEngine	\
-	&& chmod +x kaiEngine/kaiengine
+# Declare the current downloads page URL and regular expression used to extract the *.debian.x86_64.tar.gz URL from that source code.
+ARG	Download_Page="https://www.teamxlink.co.uk/downloads.php"
+ARG	Download_RegEx="s|^.*document\.downloadGet\.action *= *\"\(https://cdn\.teamxlink\.co\.uk/binary/kaiEngine-.*\.debian\.x86_64\.tar\.gz\)\".*$|\1|p"
+# Check downloads page for most recent Debian x86-64 tar.gz file, then download/extract that package.
+RUN	Download_URL="$(wget "${Download_Page}" -O- |sed -n "${Download_RegEx}")"	\
+	&& echo "Download URL:  ${Download_URL}"	\
+	&& wget "${Download_URL}" -O- |tar zxv	\
+	&& mv -v kaiEngine-* /kaiEngine
+# The above method should work for future version releases as long as the main source code on "downloads.php" stays consistent.
 
 
 # Build from scratch for smallest possible secure build.
 FROM	scratch
 
-# Copy required libraries from the builder target.
+# Copy required libraries directly from the debian:stable-slim image.
 # Most of the libraries below can be found using ldd on the executable.
 # However in practice, 3 additional libraries are also required for the executable to run:
-# /lib/i386-linux-gnu/libnss_dns.so.2
-# /lib/i386-linux-gnu/libnss_files.so.2
-# /lib/i386-linux-gnu/libresolv.so.2
-COPY	--from=builder	\
-		/lib/ld-linux.so.2	\
-		/lib/i386-linux-gnu/libc.so.6	\
-		/lib/i386-linux-gnu/libdl.so.2	\
-		/lib/i386-linux-gnu/libgcc_s.so.1	\
-		/lib/i386-linux-gnu/libm.so.6	\
-		/lib/i386-linux-gnu/libnss_dns.so.2	\
-		/lib/i386-linux-gnu/libnss_files.so.2	\
-		/lib/i386-linux-gnu/libpthread.so.0	\
-		/lib/i386-linux-gnu/libresolv.so.2	\
-		/lib/i386-linux-gnu/librt.so.1	\
-		/usr/lib/i386-linux-gnu/libstdc++.so.6	\
+# /lib/x86_64-linux-gnu/libnss_dns.so.2
+# /lib/x86_64-linux-gnu/libnss_files.so.2
+# /lib/x86_64-linux-gnu/libresolv.so.2
+COPY	--from=debian:stable-slim	\
+		/lib/x86_64-linux-gnu/libc.so.6	\
+		/lib/x86_64-linux-gnu/libdl.so.2	\
+		/lib/x86_64-linux-gnu/libgcc_s.so.1	\
+		/lib/x86_64-linux-gnu/libm.so.6	\
+		/lib/x86_64-linux-gnu/libnss_dns.so.2	\
+		/lib/x86_64-linux-gnu/libnss_files.so.2	\
+		/lib/x86_64-linux-gnu/libpthread.so.0	\
+		/lib/x86_64-linux-gnu/libresolv.so.2	\
+		/lib/x86_64-linux-gnu/librt.so.1	\
+		/usr/lib/x86_64-linux-gnu/libstdc++.so.6	\
 		/lib/
+COPY	--from=debian:stable-slim	\
+		/lib64/ld-linux-x86-64.so.2	\
+		/lib64/
 
-# Copy services file into image.
-COPY	--from=builder /etc/services /etc/
+# Copy custom minimal services file into image.  This file only contains the line read for the HTTP service.
+COPY	services /etc/services
 
-# Copy the files downloaded/extracted from the builder target.
-COPY	--from=builder /kaiEngine/ /bin/
+# Copy the files downloaded/extracted from the download stage.
+COPY	--from=download /kaiEngine/ /kaiEngine/
 
 # Set the working directory.
 # This is now set to the original configuration directory, as the new version (7.4.35) of kaiEngine now stores it's config files to the working directory.
 WORKDIR	/root/.xlink/
 
-# Expose the default port used by this program.
-EXPOSE	34522/tcp
-
 # Location where configuration files will be read/saved.
 VOLUME	["/root/.xlink/"]
 
+# Expose the default port used by this program.
+EXPOSE	34522/tcp
+
 # Set the executable as the entrypoint.
-ENTRYPOINT	["/bin/kaiengine"]
+ENTRYPOINT	["/kaiEngine/kaiengine"]
 
 # Set the Stop Signal to SIGINT to safely stop the process.
 STOPSIGNAL	SIGINT
