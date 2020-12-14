@@ -24,6 +24,9 @@ FROM	scratch
 # /lib/x86_64-linux-gnu/libnss_files.so.2
 # /lib/x86_64-linux-gnu/libresolv.so.2
 COPY	--from=debian:stable-slim	\
+		/lib64/ld-linux-x86-64.so.2	\
+		/lib64/
+COPY	--from=debian:stable-slim	\
 		/lib/x86_64-linux-gnu/libc.so.6	\
 		/lib/x86_64-linux-gnu/libdl.so.2	\
 		/lib/x86_64-linux-gnu/libgcc_s.so.1	\
@@ -35,9 +38,6 @@ COPY	--from=debian:stable-slim	\
 		/lib/x86_64-linux-gnu/librt.so.1	\
 		/usr/lib/x86_64-linux-gnu/libstdc++.so.6	\
 		/lib/
-COPY	--from=debian:stable-slim	\
-		/lib64/ld-linux-x86-64.so.2	\
-		/lib64/
 
 # Copy custom minimal services file into image.  This file only contains the line read for the HTTP service.
 COPY	services /etc/services
