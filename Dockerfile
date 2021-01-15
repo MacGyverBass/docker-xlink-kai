@@ -6,9 +6,9 @@ WORKDIR	/kaiEngine/
 
 # Declare the current downloads page URL and regular expression used to extract the *.debian.x86_64.tar.gz URL from that source code.
 ARG	Download_Page="https://www.teamxlink.co.uk/downloads.php"
-ARG	Download_RegEx="s|^.*document\.downloadGet\.action *= *\"\(https://cdn\.teamxlink\.co\.uk/binary/kaiEngine-.*\.debian\.x86_64\.tar\.gz\)\".*$|\1|p"
+ARG	Download_RegEx="s|^.*['\"]\(https://cdn\.teamxlink\.co\.uk/.*\.debian\.x86_64\.tar\.gz\)['\"].*$|\1|p"
 # Check downloads page for most recent Debian x86-64 tar.gz file, then download/extract that package.
-RUN	Download_URL="$(wget "${Download_Page}" -O- |sed -n "${Download_RegEx}")"	\
+RUN	Download_URL="$(wget "${Download_Page}" -O- |sed -n "${Download_RegEx}" |head -n1)"	\
 	&& echo "Download URL:  ${Download_URL}"	\
 	&& wget "${Download_URL}" -O- |tar zxv --strip-components=1
 # The above method should work for future version releases as long as the main source code on "downloads.php" stays consistent.
