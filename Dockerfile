@@ -1,5 +1,5 @@
 # Use busybox for downloading/extracting the XLink Kai Engine
-FROM	busybox:latest AS download
+FROM	macgyverbass/base-label:busybox AS download
 
 # Define our working directory
 WORKDIR	/kaiEngine/
@@ -15,7 +15,7 @@ RUN	Download_URL="$(wget "${Download_Page}" -O- |sed -n "${Download_RegEx}" |hea
 
 
 # Build from scratch for smallest possible secure build.
-FROM	scratch
+FROM	macgyverbass/base-label:scratch
 
 # Copy required libraries directly from the debian:stable-slim image.
 # Most of the libraries below can be found using ldd on the executable.
