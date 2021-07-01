@@ -44,8 +44,7 @@ services:
     restart: unless-stopped
     cap_add:
     - NET_ADMIN
-    networks:
-    - host
+    network_mode: host
     volumes:
     - /my-data/xlink-config/:/root/.xlink/
     container_name: xlink-kai
